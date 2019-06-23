@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        /* body{
+            display: flex;
+            flex-direction: row;
+        } */
+        #box{
+            width:50px;
+            height:50px;
+            background-color: aqua;
+            margin-left: -100px;
+        }
+        #box1{
+            width:50px;
+            height:50px;
+            background-color: red;
+            position: fixed;
+            top: 0px;
+        }
+        #btn{
+            width: 50px;
+            height: 20px;
+            background-color: blue;
+        }
+    </style>
+    <script src="./ajax.js"></script>
+</head>
+<body>
+    <div id="box"></div>
+    <div id="box1"></div>
+    <div id="btn" onclick="btn()">按钮</div>
+    <input type="text" id="clock" size="50" onclick='clearInterval(int)'/>
+    <input type="text" id="count" />
+    <input type="button" value="Start" onclick="startCount()">
+    <script>
+        let box = document.getElementById('box');
+        let box1 = document.getElementById('box1');
+        // let D = window.getComputedStyle(box, null);
+        //获取屏幕宽度
+        let wdv = window.screen.availWidth;
+        // console.log(wdv);
+
+        //面向对象，封装往右移动和碰撞交换速度这个函数
+        function Move(A,B,C) {
+            let aaa = {};
+            var that = this;
+            A.style.marginLeft = C + 'px'
+            that.coordinate = A.getBoundingClientRect().left;
+            that.speed = B
+            that.connected = []//成员变量，面向对象
+            that.start = function() {
+                // console.log(that.coordinate);
+                if (that.coordinate < wdv) {
+                    that.coordinate += that.speed;
+                    A.style.marginLeft = that.coordinate +'px';
+                    
+                }else{
+                    that.coordinate = C;
+                    A.style.marginLeft = that.coordinate +'px';
+                }
+                that.connected.forEach(nected => {
+                    if (Math.abs(nected.coordinate - that.coordinate) <= 50) {
+                       var tempSpeed = nected.speed
+                       nected.speed = that.speed
+                       that.speed = tempSpeed
+                    }
+                })
+
+                // clearTimeout(time);
+                setTimeout(that.start,10);
+                // let D = window.getComputedStyle(A, null).marginLeft;
+                // aaa = D;
+            }
+        }
+        //生成实例赋值
+        let run1 = new Move(box,5,-100);
+        let run2 = new Move(box1,1,100);
+        //调用这个方法
+        run1.start()
+        run2.start()
+        //将二放入一中              
+        run1.connected.push(run2)
+        
+        console.log(run2.coordinate); 
+        function btn() {
+            ajax({
+            url:"https://www.world-collection-hylx.com/user/getseller/index",
+            method:"POST",
+            async:true,
+            data:{
+                'oid':1,
+                'longitude':104.067276000000000,
+                'latitude':30.546070000000000
+            },
+            header:{
+                'Content-Type' : 'Application/json', 
+                // 'key' : 'huadianchongdian8313',
+                // 'time': data
+            },
+            // ContentType:"application/json",
+            success: function(response) {
+                console.log(response);
+            },
+            fail: function(status) {
+                console.log(status);
+            }
+
+        })
+    }
+
+
+    
+    var int = setInterval(clock,1000)
+    function clock() {
+        var time = new Date();
+        document.getElementById("clock").value = time;
+    }
+    var num = 0;
+    var i;
+    function startCount() {
+        document.getElementById("count").value = num;
+        num = num + 1
+    }
+    i = setInterval(startCount,1000) 
+
+
+    
+    //promise使用
+    function promiseClick() {
+        let p = new Promise(function(resolve,reject){
+            setTimeout(function(){
+                var num = Math.ceil(Math.random()*20); //生成1-10的随机数
+				console.log('随机数生成的值：',num)
+				if(num<=10){
+					resolve(num);
+				}
+				else{
+					reject('数字太于10了即将执行失败回调');
+				}
+            },1000);
+        })
+        return p
+    }
+    promiseClick().then(
+        function(data) {
+            console.log('resolved成功回调');
+			console.log('成功回调接受的值：',data);
+			// console.log(noData);
+        }
+    )                                                                                                   
+    .catch(
+        function(reason,data) {
+            console.log('catch到rejected失败回调');
+		    console.log('catch失败执行回调抛出失败原因：',reason);
+        }
+    )
+    </script>
+</body>
+</html>
